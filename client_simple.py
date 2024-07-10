@@ -21,10 +21,103 @@ import time
 
 
 def agent_function(request_dict):
-    # TOOD: Implement this function in a better way
-    print('I got the following request:')
+    print('The request:\n')
     print(request_dict)
-    return [[1, -4], [1, -3]]
+
+    board = {
+                                                (-3, 6),
+                                            (-3, 5), (-2, 5),
+                                        (-3, 4), (-2, 4), (-1, 4),
+        (-6, 3), (-5, 3), (-4, 3), (-3, 3), (-2, 3), (-1, 3), (0, 3), (1, 3), (2, 3), (3, 3),
+            (-5, 2), (-4, 2), (-3, 2), (-2, 2), (-1, 2), (0, 2), (1, 2), (2, 2), (3, 2),
+                (-4, 1), (-3, 1), (-2, 1), (-1, 1), (0, 1), (1, 1), (2, 1), (3, 1),
+                    (-3, 0), (-2, 0), (-1, 0), (0, 0), (1, 0), (2, 0), (3, 0),
+                (-3, -1), (-2, -1), (-1, -1), (0, -1), (1, -1), (2, -1), (3, -1), (4, -1),
+            (-3, -2), (-2, -2), (-1, -2), (0, -2), (1, -2), (2, -2), (3, -2), (4, -2), (5, -2),
+        (-3, -3), (-2, -3), (-1, -3), (0, -3), (1, -3), (2, -3), (3, -3), (4, -3), (5, -3), (6, -3),
+                                        (1, -4), (2, -4), (3, -4),
+                                            (2, -5), (3, -5),
+                                                (3, -6)
+    }
+
+    goal_positions = [(-3, 6), (-3, 5), (-2, 5), (-3, 4), (-2, 4), (-1, 4)]
+
+    center_pieces = {(-1, 2), (0, 0), (-1, -1), (2, -1)}
+
+    player_pegs = [tuple(pos) for pos in request_dict['A']]
+
+    opponent_pegs = [tuple(pos) for pos in request_dict['B']]
+
+    all_pegs = player_pegs + opponent_pegs
+
+    def possible_moves(peg_position):
+        if peg_position in goal_positions:
+            return []
+
+        x, y = peg_position
+        move_sequence = []
+
+        directions = [(-1, 1), (0, 1), (1, 0), (1, -1), (0, -1), (-1, 0)]
+
+        def hop_sequences(pos, current_sequence, visited):
+            hops = []
+            px, py = pos
+            for dx, dy in directions:
+                mid_pos = (px + dx, py + dy)
+                hop_pos = (px + (2 * dx), py + (2 * dy))
+
+                if mid_pos in board and (mid_pos in all_pegs or mid_pos in center_pieces) and hop_pos in board and hop_pos not in all_pegs and hop_pos not in center_pieces and hop_pos not in visited:
+                    new_sequence = current_sequence + [hop_pos]
+                    if hop_pos not in goal_positions:
+                        visited.add(hop_pos)
+                        further_hops = hop_sequences(hop_pos, new_sequence, visited)
+                        hops.extend(further_hops)
+                        visited.remove(hop_pos)
+                    else:
+                        hops.append(new_sequence)
+            if not hops:
+                hops.append(current_sequence)
+            return hops
+
+        for dx, dy in directions:
+            new_pos = (x + dx, y + dy)
+            if new_pos in board and new_pos not in all_pegs and new_pos not in center_pieces:
+                move_sequence.append([peg_position, new_pos])
+            else:
+                mid_pos = (x + dx, y + dy)
+                hop_pos = (x + (2 * dx), y + (2 * dy))
+                if mid_pos in board and (mid_pos in all_pegs or mid_pos in center_pieces) and hop_pos in board and hop_pos not in all_pegs and hop_pos not in center_pieces:
+                    hop_sequences_list = hop_sequences(hop_pos, [peg_position, hop_pos], set([peg_position]))
+                    for seq in hop_sequences_list:
+                        move_sequence.append(seq)
+
+        return move_sequence
+
+    def distance_to_goal(pos, goals):
+        return min(abs(pos[0] - gx) + abs(pos[1] - gy) for gx, gy in goals)
+
+
+    best_move = None
+    min_distance = float('inf')
+
+    if (-3, 6) not in player_pegs and ((-3, 5) in player_pegs or (-2, 5) in player_pegs):
+        if (-3, 5) in player_pegs:
+            best_move = [(-3, 5), (-3, 6)]
+        elif (-2, 5) in player_pegs:
+            best_move = [(-2, 5), (-3, 6)]
+
+    else:
+        for peg in player_pegs:
+            for move in possible_moves(peg):
+                new_pos = move[-1]
+                dist = distance_to_goal(new_pos, goal_positions)
+                if dist < min_distance:
+                    min_distance = dist
+                    best_move = move
+    print(best_move)
+    return best_move
+
+
 
 
 def run(config_file, action_function, single_request=False):
