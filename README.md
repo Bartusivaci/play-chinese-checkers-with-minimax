@@ -52,7 +52,7 @@ coordinates will give us the exact 6 adjacent cell that we can move. Additional 
 Also, to find the cell that we can hop into I used the formula:
 ``x + (2 * x_of_direction), y + (2 * y_of_direction)`` The direction is one of the six coordinates I stated above.
 
-**Greedy Algorithm**: At first I used ``Greedy Algorithm`` to always chose the moves that got me closest to the goals.
+**Greedy Algorithm**: At first I used ``Greedy Algorithm`` to always choose the moves that got me closest to the goals.
 This implementation worked well for the environment 1 which is the easy one and managed to get around 0.85 rating. But when
 I tried using it on harder environments I got very low ratings, so I switched to Minimax with alpha beta pruning.
 
