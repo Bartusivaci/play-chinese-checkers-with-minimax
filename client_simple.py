@@ -18,6 +18,7 @@ import logging
 
 import requests
 import time
+import math
 
 class GameState:
     def __init__(self, board, player_pegs, opponent_pegs, goal_positions, opponent_goal_positions, center_pieces):
@@ -57,9 +58,11 @@ class GameState:
         return GameState(self.board, new_player_pegs, new_opponent_pegs, self.goal_positions, self.opponent_goal_positions, self.center_pieces)
 
     def score(self):
-        own_score = -sum(min(abs(px - gx) + abs(py - gy) for gx, gy in self.goal_positions) for px, py in self.player_pegs)
-        opponent_score = sum(min(abs(px - gx) + abs(py - gy) for gx, gy in self.opponent_goal_positions) for px, py in self.opponent_pegs)
+        own_score = -sum(min(math.sqrt((px - gx) ** 2 + (py - gy) ** 2) for gx, gy in self.goal_positions) for px, py in self.player_pegs)
+        opponent_score = sum(min(math.sqrt((px - gx) ** 2 + (py - gy) ** 2) for gx, gy in self.opponent_goal_positions) for px, py in self.opponent_pegs)
+
         return own_score + opponent_score
+
 
     def is_terminal(self):
         return all(pos in self.goal_positions for pos in self.player_pegs) or all(pos in self.opponent_goal_positions for pos in self.opponent_pegs)
