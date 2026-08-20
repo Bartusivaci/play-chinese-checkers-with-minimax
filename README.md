@@ -1,6 +1,6 @@
-# Repository for ss24.1.2/team049
+# Repository for AI Project 1.2
 
-**Topic:** SS24 Assignment 1.2: Play FAUhalma
+**Topic:** SS24 Assignment 1.2: [Play FAUhalma](https://kwarc.info/teaching/AISysProj/SS24/assignment-1.2.pdf)
 
 ## Requirements
 
